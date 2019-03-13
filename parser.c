@@ -81,9 +81,9 @@ void parse_file ( char * filename,
   char line[255];
   clear_screen(s);
   color c;
-  c.red = 255;
-  c.green = 0;
-  c.blue = 255;
+  c.red = 30;
+  c.green = 210;
+  c.blue = 175;
 
   if ( strcmp(filename, "stdin") == 0 )
     f = stdin;
@@ -197,7 +197,7 @@ void parse_file ( char * filename,
       clear_screen(s);
       draw_lines(edges, s, c);
       // print_matrix(edges);
-      // display( s );
+      display( s );
     }//end display
 
     else if ( strncmp(line, "save", strlen(line)) == 0 ) {

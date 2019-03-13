@@ -1,0 +1,16 @@
+circle
+250 250 0 100 100
+circle
+200 260 0 10 15
+circle
+300 260 0 10 15
+circle
+200 255 0 5 10
+circle
+300 255 0 5 10
+hermite
+30 250 500 250 40 -100 40 100
+
+display
+save
+alex.png
