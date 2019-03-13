@@ -9,6 +9,18 @@
 #include "matrix.h"
 #include "parser.h"
 
+
+char ** parse_args( char * cmd ){
+    char ** arg_list = calloc(sizeof(char*), 25);
+    for(int i = 0; (arg_list[i] = strsep(&cmd, " ")); i++){
+        // If the arg is an empty string (extra spaces), remove it
+        if(*arg_list[i] == 0){
+            i--;
+        }
+    }
+    return arg_list;
+}
+
 /*======== void parse_file () ==========
 Inputs:   char * filename
           struct matrix * transform,
@@ -72,18 +84,18 @@ void parse_file ( char * filename,
   c.red = 255;
   c.green = 0;
   c.blue = 255;
-  
-  if ( strcmp(filename, "stdin") == 0 ) 
+
+  if ( strcmp(filename, "stdin") == 0 )
     f = stdin;
   else
     f = fopen(filename, "r");
-  
+
   while ( fgets(line, sizeof(line), f) != NULL ) {
     line[strlen(line)-1]='\0';
     //printf(":%s:\n",line);
 
-    double xvals[3];
-    double yvals[3];
+    double xvals[4];
+    double yvals[4];
     double zvals[4];
     struct matrix *tmp;
     double theta;
@@ -148,6 +160,33 @@ void parse_file ( char * filename,
       ident(transform);
     }//end ident
 
+    else if (strcmp(line, "circle") == 0){
+      double r, step;
+      step = 0.001;
+
+      fgets(line, 1024, f);
+      sscanf(line, "%lf %lf %lf %lf", xvals, yvals, zvals, &r);
+			add_circle(edges, xvals[0], yvals[0], zvals[0], r, step);
+    }//end circle
+
+    else if (strcmp(line, "hermite") == 0){
+      double step = 0.001;
+
+      fgets(line, sizeof(line), f);
+      sscanf(line, "%lf %lf %lf %lf %lf %lf %lf %lf",
+          xvals, yvals, xvals + 1, yvals + 1, xvals + 2, yvals + 2, xvals + 3, yvals + 3);
+      add_curve(edges, xvals[0], yvals[0], xvals[1], yvals[1], xvals[2], yvals[2], xvals[3], yvals[3], step, HERMITE);
+    }//end hermite
+
+    else if (strcmp(line, "bezier") == 0){
+      double step = 0.001;
+
+			fgets(line, sizeof(line), f);
+			sscanf(line, "%lf %lf %lf %lf %lf %lf %lf %lf",
+					xvals, yvals, xvals + 1, yvals + 1, xvals + 2, yvals + 2, xvals + 3, yvals + 3);
+			add_curve(edges, xvals[0], yvals[0], xvals[1], yvals[1], xvals[2], yvals[2], xvals[3], yvals[3], step, BEZIER);
+    }//end bezier
+
     else if ( strncmp(line, "apply", strlen(line)) == 0 ) {
       //printf("APPLY\t%s", line);
       matrix_mult(transform, edges);
@@ -157,7 +196,8 @@ void parse_file ( char * filename,
       //printf("DISPLAY\t%s", line);
       clear_screen(s);
       draw_lines(edges, s, c);
-      display( s );
+      // print_matrix(edges);
+      // display( s );
     }//end display
 
     else if ( strncmp(line, "save", strlen(line)) == 0 ) {
